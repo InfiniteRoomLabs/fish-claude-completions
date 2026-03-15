@@ -9,3 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - Design spec for fish-claude-completions Fisher plugin
+
+### Changed
+
+- Fix spec: remove non-existent `mcp enable`/`disable` and `migrate-installer` subcommands
+- Fix spec: add missing flags (`-c`, `--fallback-model`, `--strict-mcp-config`) and short forms (`-r`, `-w`, `-n`)
+- Fix spec: correct session metadata lookup strategy to use `.jsonl` mtime
+- Fix spec: add all subcommand-level flags for mcp/auth/plugin trees

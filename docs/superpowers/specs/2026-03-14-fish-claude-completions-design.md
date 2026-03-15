@@ -33,11 +33,11 @@ All completions and helper functions live in `completions/claude.fish`. This is 
 
 Returns true when the commandline has no subcommand yet. Used as a condition for top-level flags and subcommand suggestions.
 
-Checks `commandline -opc` against the known subcommand list: `config`, `mcp`, `auth`, `plugin`, `plugins`, `agents`, `doctor`, `update`, `upgrade`, `install`, `setup-token`, `migrate-installer`.
+Checks `commandline -opc` against the known subcommand list: `config`, `mcp`, `auth`, `plugin`, `plugins`, `agents`, `doctor`, `update`, `upgrade`, `install`, `setup-token`.
 
 #### `__fish_claude_mcp_servers`
 
-Returns MCP server names for `mcp get/remove/enable/disable <tab>`.
+Returns MCP server names for `mcp get/remove <tab>`.
 
 Resolution order:
 1. Parse `~/.claude/settings.local.json` -- extract keys from `mcpServers` object
@@ -53,8 +53,10 @@ Returns session IDs with descriptions for `--resume <tab>`.
 1. Derives the project slug from `$PWD` using Claude's encoding: path with `/` replaced by `-`, leading `-` stripped
 2. Lists `*.jsonl` files in `~/.claude/projects/{slug}/`
 3. For each file, extracts the UUID from the filename
-4. Reads the corresponding session metadata from `~/.claude/sessions/*.json` to get timestamps
-5. Returns formatted as: `uuid\tdescription (time ago)`
+4. Uses file modification time (`stat`) of the `.jsonl` file as a lightweight proxy for "last activity"
+5. Returns formatted as: `uuid\t(2h ago)` -- sorted most recent first
+
+Session metadata in `~/.claude/sessions/*.json` is keyed by PID (not UUID) and would require scanning all files to match. Using `.jsonl` mtime is simpler and sufficient.
 
 Scoped to the current project directory only -- does not show sessions from other projects.
 
@@ -66,14 +68,16 @@ All ~40 flags from `claude --help`:
 
 | Category | Flags |
 |----------|-------|
-| Simple toggles | `--debug`, `--verbose`, `--print`, `--version`, `--help`, `--ide`, `--chrome`, `--no-chrome`, `--brief`, `--fork-session`, `--mcp-debug`, `--dangerously-skip-permissions`, `--allow-dangerously-skip-permissions`, `--disable-slash-commands`, `--no-session-persistence`, `--include-partial-messages`, `--replay-user-messages` |
-| Enumerated values | `--output-format` (text/json/stream-json), `--input-format` (text/stream-json), `--effort` (low/medium/high/max), `--permission-mode` (acceptEdits/bypassPermissions/default/dontAsk/plan/auto), `--model` (sonnet/opus/haiku) |
-| Dynamic values | `--resume` (sessions), `--mcp-config` (files), `--add-dir` (directories), `--debug-file` (files), `--plugin-dir` (directories), `--settings` (files) |
-| Freeform values | `--system-prompt`, `--append-system-prompt`, `--allowedTools`, `--disallowedTools`, `--json-schema`, `--max-budget-usd`, `--session-id`, `--name`, `--agents`, `--betas`, `--tools`, `--setting-sources`, `--file`, `--agent`, `--worktree`, `--from-pr`, `--tmux` |
+| Simple toggles | `--continue`/`-c`, `--debug`/`-d`, `--verbose`, `--print`/`-p`, `--version`/`-v`, `--help`/`-h`, `--ide`, `--chrome`, `--no-chrome`, `--brief`, `--fork-session`, `--mcp-debug`, `--dangerously-skip-permissions`, `--allow-dangerously-skip-permissions`, `--disable-slash-commands`, `--no-session-persistence`, `--include-partial-messages`, `--replay-user-messages`, `--strict-mcp-config` |
+| Enumerated values | `--output-format` (text/json/stream-json), `--input-format` (text/stream-json), `--effort` (low/medium/high/max), `--permission-mode` (acceptEdits/bypassPermissions/default/dontAsk/plan/auto), `--model` (sonnet/opus/haiku -- also accepts full model names like claude-sonnet-4-6), `--fallback-model` (same choices as --model) |
+| Dynamic values | `--resume`/`-r` (sessions), `--mcp-config` (files), `--add-dir` (directories), `--debug-file` (files), `--plugin-dir` (directories), `--settings` (files) |
+| Freeform values | `--system-prompt`, `--append-system-prompt`, `--allowedTools`, `--disallowedTools`, `--json-schema`, `--max-budget-usd`, `--session-id`, `--name`/`-n`, `--agents`, `--betas`, `--tools`, `--setting-sources`, `--file`, `--agent`, `--worktree`/`-w`, `--from-pr`, `--tmux` |
 
 ### Subcommands
 
-Suggested when no subcommand is present: `config`, `mcp`, `auth`, `plugin`, `agents`, `doctor`, `update`, `install`, `setup-token`, `migrate-installer`.
+Suggested when no subcommand is present: `config`, `mcp`, `auth`, `plugin`/`plugins`, `agents`, `doctor`, `update`/`upgrade`, `install`, `setup-token`.
+
+> **Note:** `config` is not listed in `claude --help` but is a working undocumented subcommand. Its structure was determined empirically and may change without notice.
 
 ### `config` Subcommand Tree
 
@@ -92,14 +96,12 @@ Config key names are hardcoded in the completions file but generated at CI/CD bu
 ```
 mcp
   list
-  add [--transport stdio|sse|http] [--scope local|user|project] [-e KEY=val] [-H header] [--callback-port] [--client-id] [--client-secret] <name> <command> [args...]
-  add-json <name> <json>
-  add-from-claude-desktop
-  remove <name>          # dynamic: __fish_claude_mcp_servers
-  get <name>             # dynamic: __fish_claude_mcp_servers
-  enable <name>          # dynamic: __fish_claude_mcp_servers
-  disable <name>         # dynamic: __fish_claude_mcp_servers
-  serve [--debug] [--verbose]
+  add [-t/--transport stdio|sse|http] [-s/--scope local|user|project] [-e/--env KEY=val] [-H/--header header] [--callback-port port] [--client-id id] [--client-secret] <name> <command> [args...]
+  add-json [-s/--scope local|user|project] [--client-secret] <name> <json>
+  add-from-claude-desktop [-s/--scope local|user|project]
+  remove [-s/--scope local|user|project] <name>   # dynamic: __fish_claude_mcp_servers
+  get <name>                                       # dynamic: __fish_claude_mcp_servers
+  serve [-d/--debug] [--verbose]
   reset-project-choices
 ```
 
@@ -107,26 +109,26 @@ mcp
 
 ```
 auth
-  login
+  login [--email <email>] [--sso]
   logout
-  status
+  status [--json] [--text]
 ```
 
 ### `plugin` Subcommand Tree
 
 ```
-plugin
-  install <plugin>
-  uninstall <plugin>
-  list
-  enable <plugin>
-  disable <plugin>
-  update <plugin>
+plugin|plugins
+  install [-s/--scope local|user|project] <plugin>
+  uninstall|remove [-s/--scope local|user|project] <plugin>
+  list [--available] [--json]
+  enable [-s/--scope local|user|project] <plugin>
+  disable [-s/--scope local|user|project] [-a/--all] <plugin>
+  update [-s/--scope local|user|project|managed] <plugin>
   validate <path>
   marketplace
-    add <source>
-    remove <name>
-    list
+    add [--scope local|user|project] [--sparse] <source>
+    remove|rm <name>
+    list [--json]
     update [name]
 ```
 
@@ -138,7 +140,9 @@ install [--force] [stable|latest|<version>]
 
 ### Simple Subcommands
 
-`doctor`, `update`/`upgrade`, `agents`, `setup-token`, `migrate-installer` -- only `--help` completion.
+`doctor`, `update`/`upgrade`, `agents` (has `--setting-sources`), `setup-token` -- plus `-h`/`--help` on every subcommand.
+
+> **Note:** `-h`/`--help` is offered as a completion on all subcommands and sub-subcommands.
 
 ## CI/CD: Config Key Generation
 
