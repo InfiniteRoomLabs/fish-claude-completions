@@ -1,0 +1,28 @@
+{
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "infinite-room-labs": {
+      "source": {
+        "source": "github",
+        "repo": "InfiniteRoomLabs/agent-ops"
+      }
+    },
+    "superpowers-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "obra/superpowers-marketplace"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "core@infinite-room-labs": true,
+    "superpowers@claude-plugins-official": true,
+    "superpowers@superpowers-marketplace": true,
+    "claude-md-management@claude-plugins-official": true
+  }
+}
