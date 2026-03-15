@@ -7,8 +7,7 @@ Tab completions for the [Claude Code](https://docs.anthropic.com/en/docs/claude-
 - Complete all flags, subcommands, and sub-subcommands
 - Dynamic MCP server name completions (from local config files)
 - Dynamic session ID completions for `--resume` (scoped to current project)
-- Config key completions for `config set/get` (generated from official JSON schema)
-- Full subcommand trees for `mcp`, `auth`, `plugin`, `config`, and `install`
+- Full subcommand trees for `mcp`, `auth`, `plugin`, and `install`
 
 ## Installation
 
@@ -22,10 +21,7 @@ fisher install InfiniteRoomLabs/fish-claude-completions
 
 ### Static completions
 
-All CLI flags and subcommand trees are defined statically. Config key names
-are hardcoded but regenerated weekly from the
-[official JSON schema](https://json.schemastore.org/claude-code-settings.json)
-via CI/CD.
+All CLI flags and subcommand trees are defined statically.
 
 ### Dynamic completions
 
