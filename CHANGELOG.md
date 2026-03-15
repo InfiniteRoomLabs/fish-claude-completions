@@ -12,6 +12,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Implementation plan with 9 tasks across 4 chunks
 - MIT LICENSE
 - README with installation and usage instructions
+- Fish shell completions for all `claude` CLI flags and subcommands
+- Dynamic MCP server name completions from local config files
+- Dynamic session ID completions for `--resume` scoped to current project
+- Config key completions for `config set/get` from official JSON schema
+- Full subcommand trees for `mcp`, `auth`, `plugin`, `config`, and `install`
 
 ### Changed
 
