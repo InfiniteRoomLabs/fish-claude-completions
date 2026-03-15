@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Design spec for fish-claude-completions Fisher plugin
 - Implementation plan with 9 tasks across 4 chunks
+- MIT LICENSE
+- README with installation and usage instructions
 
 ### Changed
 
