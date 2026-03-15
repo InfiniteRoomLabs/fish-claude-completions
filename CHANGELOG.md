@@ -20,6 +20,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `scripts/generate-config-keys.py` for CI/CD config key generation from SchemaStore
 - GitHub Actions workflow for weekly automated config key updates
 
+### Fixed
+
+- Session slug derivation now keeps leading dash to match Claude Code's encoding
+
 ### Changed
 
 - Fix spec: remove non-existent `mcp enable`/`disable` and `migrate-installer` subcommands

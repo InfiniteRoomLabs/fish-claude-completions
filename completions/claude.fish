@@ -66,8 +66,8 @@ except: pass
 end
 
 function __fish_claude_sessions
-    # Derive project slug from PWD (same encoding Claude uses)
-    set -l slug (string replace -a '/' '-' $PWD | string replace -r '^-' '')
+    # Derive project slug from PWD (same encoding Claude uses: replace / with -)
+    set -l slug (string replace -a '/' '-' $PWD)
     set -l sessions_dir "$HOME/.claude/projects/$slug"
 
     if not test -d "$sessions_dir"
