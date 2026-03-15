@@ -17,6 +17,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Dynamic session ID completions for `--resume` scoped to current project
 - Config key completions for `config set/get` from official JSON schema
 - Full subcommand trees for `mcp`, `auth`, `plugin`, `config`, and `install`
+- `scripts/generate-config-keys.py` for CI/CD config key generation from SchemaStore
+- GitHub Actions workflow for weekly automated config key updates
 
 ### Changed
 
