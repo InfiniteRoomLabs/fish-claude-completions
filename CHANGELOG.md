@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - Design spec for fish-claude-completions Fisher plugin
+- Implementation plan with 9 tasks across 4 chunks
 
 ### Changed
 
