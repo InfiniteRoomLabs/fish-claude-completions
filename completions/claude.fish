@@ -110,6 +110,102 @@ function __fish_claude_sessions
     end
 end
 
+function __fish_claude_agents
+    set -l agents
+
+    # Source 1: User agents from ~/.claude/agents/*.md
+    set -l agents_dir "$HOME/.claude/agents"
+    if test -d "$agents_dir"
+        set -a agents (python3 -c "
+import os, re
+def extract_desc(text):
+    m = re.search(r'^---\s*\n(.*?)\n---', text, re.DOTALL)
+    if not m:
+        return ''
+    fm = m.group(1)
+    dm = re.search(r'^description:\s*[>|]-?\s*\n((?:\s+.+\n?)+)', fm, re.MULTILINE)
+    if dm:
+        lines = dm.group(1).strip().splitlines()
+        return ' '.join(l.strip() for l in lines)[:60]
+    dm = re.search(r'^description:\s+(.+)', fm, re.MULTILINE)
+    if dm:
+        val = dm.group(1).strip().strip(chr(34) + chr(39))
+        if val not in ('>', '|', '>-', '|-'):
+            return val[:60]
+    return ''
+agents_dir = '$agents_dir'
+try:
+    for f in sorted(os.listdir(agents_dir)):
+        if not f.endswith('.md'):
+            continue
+        name = f[:-3]
+        text = open(os.path.join(agents_dir, f)).read(2000)
+        desc = extract_desc(text)
+        print(name + '\t' + desc if desc else name)
+except Exception:
+    pass
+" 2>/dev/null)
+    end
+
+    # Source 2: Installed plugin agents via installed_plugins.json
+    set -l plugins_file "$HOME/.claude/plugins/installed_plugins.json"
+    if test -f "$plugins_file"
+        set -a agents (python3 -c "
+import json, os, re
+def extract_desc(text):
+    m = re.search(r'^---\s*\n(.*?)\n---', text, re.DOTALL)
+    if not m:
+        return ''
+    fm = m.group(1)
+    dm = re.search(r'^description:\s*[>|]-?\s*\n((?:\s+.+\n?)+)', fm, re.MULTILINE)
+    if dm:
+        lines = dm.group(1).strip().splitlines()
+        return ' '.join(l.strip() for l in lines)[:60]
+    dm = re.search(r'^description:\s+(.+)', fm, re.MULTILINE)
+    if dm:
+        val = dm.group(1).strip().strip(chr(34) + chr(39))
+        if val not in ('>', '|', '>-', '|-'):
+            return val[:60]
+    return ''
+try:
+    data = json.load(open('$plugins_file'))
+    seen = set()
+    for key, entries in data.get('plugins', {}).items():
+        plugin_name = key.split('@')[0]
+        for entry in entries:
+            install_path = entry.get('installPath', '')
+            agents_path = os.path.join(install_path, 'agents')
+            if not os.path.isdir(agents_path):
+                continue
+            for root, dirs, files in os.walk(agents_path):
+                dirs.sort()
+                for f in sorted(files):
+                    if not f.endswith('.md'):
+                        continue
+                    rel = os.path.relpath(os.path.join(root, f), agents_path)
+                    agent_id = rel[:-3].replace(os.sep, ':')
+                    full_name = plugin_name + ':' + agent_id
+                    if full_name in seen:
+                        continue
+                    seen.add(full_name)
+                    fpath = os.path.join(root, f)
+                    text = open(fpath).read(2000)
+                    desc = extract_desc(text)
+                    print(full_name + '\t' + desc if desc else full_name)
+except Exception:
+    pass
+" 2>/dev/null)
+    end
+
+    # Source 3: Fallback to claude agents CLI (slower -- spawns Node.js)
+    if test (count $agents) -eq 0
+        set -a agents (command claude agents 2>/dev/null | string match -rg '^\s+(\S+)\s' | string trim)
+    end
+
+    # Deduplicate by name (first column) and output
+    printf '%s\n' $agents | sort -u -t \t -k1,1
+end
+
 # =============================================================================
 # Subcommands (when no subcommand present)
 # =============================================================================
@@ -180,7 +276,7 @@ complete -c claude -n __fish_claude_no_subcommand -l betas -d "Beta headers for 
 complete -c claude -n __fish_claude_no_subcommand -l tools -d "List of available tools" -rx
 complete -c claude -n __fish_claude_no_subcommand -l setting-sources -d "Comma-separated setting sources" -rx
 complete -c claude -n __fish_claude_no_subcommand -l file -d "File resources (file_id:relative_path)" -rx
-complete -c claude -n __fish_claude_no_subcommand -l agent -d "Agent for the current session" -rx
+complete -c claude -n __fish_claude_no_subcommand -l agent -d "Agent for the current session" -rxa "(__fish_claude_agents)"
 complete -c claude -n __fish_claude_no_subcommand -s w -l worktree -d "Create a new git worktree for this session"
 complete -c claude -n __fish_claude_no_subcommand -l from-pr -d "Resume session linked to a PR"
 complete -c claude -n __fish_claude_no_subcommand -l tmux -d "Create a tmux session for the worktree"

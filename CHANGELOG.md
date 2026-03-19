@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-03-19
+
 ### Added
 
 - Design spec for fish-claude-completions Fisher plugin
@@ -15,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Fish shell completions for all `claude` CLI flags and subcommands
 - Dynamic MCP server name completions from local config files
 - Dynamic session ID completions for `--resume` scoped to current project
+- Dynamic agent name completions for `--agent` with descriptions from frontmatter
 - Full subcommand trees for `mcp`, `auth`, `plugin`, and `install`
 
 ### Fixed
