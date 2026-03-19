@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-03-19
+
+### Added
+
+- Fuzzy agent search via fifc integration (`conf.d/claude_agent_fzf.fish`)
+- Agent preview pane showing full frontmatter when selecting in fzf (`functions/_claude_agent_fzf_preview.fish`)
+- Soft dependency on fifc; falls back to standard completions when absent
+
 ## [1.0.0] - 2026-03-19
 
 ### Added
