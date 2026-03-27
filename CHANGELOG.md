@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Dynamic completions for installed plugin names (`plugin uninstall/enable/disable/update`)
+- Dynamic completions for registered marketplace names (`plugin marketplace remove/rm/update`)
+- New helper functions: `__fish_claude_installed_plugins`, `__fish_claude_known_marketplaces`
+
 ## [1.1.0] - 2026-03-19
 
 ### Added
