@@ -39,6 +39,17 @@ function __fish_claude_installed_plugins
     ' "$plugins_file" 2>/dev/null
 end
 
+function __fish_claude_known_marketplaces
+    set -l marketplaces_file "$HOME/.claude/plugins/known_marketplaces.json"
+    if not test -f "$marketplaces_file"
+        return
+    end
+    command jq -r '
+        to_entries[] |
+        .key + "\t" + .value.source.repo
+    ' "$marketplaces_file" 2>/dev/null
+end
+
 function __fish_claude_mcp_servers
     set -l servers
 
