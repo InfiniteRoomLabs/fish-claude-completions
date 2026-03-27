@@ -26,6 +26,19 @@ function __fish_claude_no_subcommand
     return 0
 end
 
+function __fish_claude_installed_plugins
+    set -l plugins_file "$HOME/.claude/plugins/installed_plugins.json"
+    if not test -f "$plugins_file"
+        return
+    end
+    command jq -r '
+        .plugins | to_entries[] |
+        .key as $name |
+        .value[] |
+        $name + "\t" + .scope + ", " + (if .version == "unknown" then "unknown" else "v" + .version end)
+    ' "$plugins_file" 2>/dev/null
+end
+
 function __fish_claude_mcp_servers
     set -l servers
 
