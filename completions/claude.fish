@@ -26,6 +26,32 @@ function __fish_claude_no_subcommand
     return 0
 end
 
+function __fish_claude_installed_plugins
+    set -l plugins_file "$HOME/.claude/plugins/installed_plugins.json"
+    if not test -f "$plugins_file"
+        return
+    end
+    command -q jq; or return
+    command jq -r '
+        .plugins | to_entries[] |
+        .key as $name |
+        .value[] |
+        $name + "\t" + .scope + ", " + (if .version == "unknown" then "unknown" else "v" + .version end)
+    ' "$plugins_file" 2>/dev/null
+end
+
+function __fish_claude_known_marketplaces
+    set -l marketplaces_file "$HOME/.claude/plugins/known_marketplaces.json"
+    if not test -f "$marketplaces_file"
+        return
+    end
+    command -q jq; or return
+    command jq -r '
+        to_entries[] |
+        .key + "\t" + .value.source.repo
+    ' "$marketplaces_file" 2>/dev/null
+end
+
 function __fish_claude_mcp_servers
     set -l servers
 
@@ -357,10 +383,14 @@ complete -c claude -n "__fish_seen_subcommand_from plugin plugins" -s h -l help 
 # plugin install/uninstall/enable/disable/update: scope flag
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from install" -s s -l scope -d "Configuration scope" -rxa "local user project"
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from uninstall remove" -s s -l scope -d "Configuration scope" -rxa "local user project"
+complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from uninstall remove" -xa "(__fish_claude_installed_plugins)"
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from enable" -s s -l scope -d "Configuration scope" -rxa "local user project"
+complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from enable" -xa "(__fish_claude_installed_plugins)"
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from disable" -s s -l scope -d "Configuration scope" -rxa "local user project"
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from disable" -s a -l all -d "Disable all plugins"
+complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from disable" -xa "(__fish_claude_installed_plugins)"
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from update" -s s -l scope -d "Configuration scope" -rxa "local user project managed"
+complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from update" -xa "(__fish_claude_installed_plugins)"
 
 # plugin list flags
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from list" -l available -d "Show available plugins"
@@ -379,6 +409,12 @@ complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_se
 # plugin marketplace add flags
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from marketplace; and __fish_seen_subcommand_from add" -l scope -d "Configuration scope" -rxa "local user project"
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from marketplace; and __fish_seen_subcommand_from add" -l sparse -d "Use sparse checkout"
+
+# plugin marketplace remove/rm: dynamic marketplace names
+complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from marketplace; and __fish_seen_subcommand_from remove rm" -xa "(__fish_claude_known_marketplaces)"
+
+# plugin marketplace update: dynamic marketplace names
+complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from marketplace; and __fish_seen_subcommand_from update" -xa "(__fish_claude_known_marketplaces)"
 
 # plugin marketplace list flags
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from marketplace; and __fish_seen_subcommand_from list" -l json -d "Output as JSON"
