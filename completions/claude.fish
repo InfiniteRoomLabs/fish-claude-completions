@@ -31,6 +31,7 @@ function __fish_claude_installed_plugins
     if not test -f "$plugins_file"
         return
     end
+    command -q jq; or return
     command jq -r '
         .plugins | to_entries[] |
         .key as $name |
@@ -44,6 +45,7 @@ function __fish_claude_known_marketplaces
     if not test -f "$marketplaces_file"
         return
     end
+    command -q jq; or return
     command jq -r '
         to_entries[] |
         .key + "\t" + .value.source.repo

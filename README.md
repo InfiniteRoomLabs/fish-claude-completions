@@ -8,7 +8,7 @@ Tab completions for the [Claude Code](https://docs.anthropic.com/en/docs/claude-
 - Dynamic MCP server name completions (from local config files)
 - Dynamic session ID completions for `--resume` (scoped to current project)
 - Dynamic installed plugin name completions for `plugin uninstall/enable/disable/update`
-- Dynamic marketplace name completions for `plugin marketplace remove/update`
+- Dynamic marketplace name completions for `plugin marketplace remove/rm/update`
 - Full subcommand trees for `mcp`, `auth`, `plugin`, and `install`
 
 ## Installation
