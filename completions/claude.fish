@@ -408,6 +408,12 @@ complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_se
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from marketplace; and __fish_seen_subcommand_from add" -l scope -d "Configuration scope" -rxa "local user project"
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from marketplace; and __fish_seen_subcommand_from add" -l sparse -d "Use sparse checkout"
 
+# plugin marketplace remove/rm: dynamic marketplace names
+complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from marketplace; and __fish_seen_subcommand_from remove rm" -xa "(__fish_claude_known_marketplaces)"
+
+# plugin marketplace update: dynamic marketplace names
+complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from marketplace; and __fish_seen_subcommand_from update" -xa "(__fish_claude_known_marketplaces)"
+
 # plugin marketplace list flags
 complete -c claude -n "__fish_seen_subcommand_from plugin plugins; and __fish_seen_subcommand_from marketplace; and __fish_seen_subcommand_from list" -l json -d "Output as JSON"
 
